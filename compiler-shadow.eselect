@@ -113,8 +113,12 @@ do_update() {
 
 			# create new links
 			local exe
+			local flags="-v"
+			# sccache requires hardlinks
+			# https://github.com/mozilla/sccache/issues/993
+			[[ "${tool_exec##*/}" == "sccache" ]] || flags="${flags} -s"
 			while read -r exe; do
-				ln -v -s "${tool_exec}" "${exe}" || die
+				ln ${flags} "${tool_exec}" "${exe}" || die
 			done < <(compgen -c -X "!${p}" | sort -u)
 			# note: compgen can return a command twice if it is included
 			# in multiple directories in PATH
